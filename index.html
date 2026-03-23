@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Weaver</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Inter:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="/config.js"></script>
+</head>
+
+<body class="mood-neutral">
+    <div class="atmosphere"></div>
+
+    <div class="content">
+        <header>
+            <h1 class="serif italic-small">Mood Weaver</h1>
+            <p class="small-caps">Select a feeling to begin</p>
+        </header>
+
+        <main>
+            <div class="mbti-container">
+                <p class="small-caps" style="margin-bottom: 0.5rem; font-size: 0.6rem;">Your Personality (MBTI)</p>
+                <div class="mbti-selector" id="mbti-selector">
+                    <button class="mbti-pill active" data-mbti="INFP">INFP</button>
+                    <button class="mbti-pill" data-mbti="INFJ">INFJ</button>
+                    <button class="mbti-pill" data-mbti="ENFP">ENFP</button>
+                    <button class="mbti-pill" data-mbti="ENFJ">ENFJ</button>
+                    <button class="mbti-pill" data-mbti="INTJ">INTJ</button>
+                    <button class="mbti-pill" data-mbti="INTP">INTP</button>
+                    <button class="mbti-pill" data-mbti="ENTJ">ENTJ</button>
+                    <button class="mbti-pill" data-mbti="ENTP">ENTP</button>
+                    <button class="mbti-pill" data-mbti="ISFP">ISFP</button>
+                    <button class="mbti-pill" data-mbti="ISFJ">ISFJ</button>
+                    <button class="mbti-pill" data-mbti="ESFP">ESFP</button>
+                    <button class="mbti-pill" data-mbti="ESFJ">ESFJ</button>
+                    <button class="mbti-pill" data-mbti="ISTP">ISTP</button>
+                    <button class="mbti-pill" data-mbti="ISTJ">ISTJ</button>
+                    <button class="mbti-pill" data-mbti="ESTP">ESTP</button>
+                    <button class="mbti-pill" data-mbti="ESTJ">ESTJ</button>
+                </div>
+            </div>
+
+            <div class="mood-selector">
+                <button class="mood-btn" data-mood="Melancholy" data-theme="mood-dark">🌑 Melancholy</button>
+                <button class="mood-btn" data-mood="Euphoric" data-theme="mood-gold">☀️ Euphoric</button>
+                <button class="mood-btn" data-mood="Serene" data-theme="mood-ocean">🌊 Serene</button>
+                <button class="mood-btn" data-mood="Chaos" data-theme="mood-storm">🌪️ Chaos</button>
+                <button class="mood-btn" data-mood="Hope" data-theme="mood-bloom">🌸 Hope</button>
+                <button class="mood-btn" data-mood="Nostalgic" data-theme="mood-sepia">📜 Nostalgic</button>
+                <button class="mood-btn" data-mood="Radiant" data-theme="mood-light">✨ Radiant</button>
+                <button class="mood-btn" data-mood="Vulnerable" data-theme="mood-mist">🌫️ Vulnerable</button>
+                <button class="mood-btn" data-mood="Empowered" data-theme="mood-fire">🔥 Empowered</button>
+                <button class="mood-btn" data-mood="Solitude" data-theme="mood-forest">🌲 Solitude</button>
+                <button class="mood-btn" data-mood="Ethereal" data-theme="mood-nebula">🌌 Ethereal</button>
+                <button class="mood-btn" data-mood="Bittersweet" data-theme="mood-sunset">🌇 Bittersweet</button>
+                <button class="mood-btn" data-mood="Curiosity" data-theme="mood-amber">🕯️ Curiosity</button>
+                <button class="mood-btn" data-mood="Tranquil" data-theme="mood-zen">🎋 Tranquil</button>
+            </div>
+
+            <div id="output-container" class="output-box">
+                <div id="intro-text" class="small-caps" style="opacity: 0.2; font-size: 0.6rem;">Choose your mood to
+                    weave a unique artwork</div>
+                <div id="loader" class="loader hidden">
+                    <div class="pulse"></div>
+                    <p class="small-caps">Weaving your thoughts...</p>
+                </div>
+                <div id="result" class="result-content hidden">
+                    <p id="artwork-text" class="serif"></p>
+                    <button id="copy-btn" class="small-caps"
+                        style="margin-top: 2rem; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); padding: 0.4rem 1rem; border-radius: 100px; cursor: pointer; transition: all 0.3s ease;">Copy
+                        to Clipboard</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="status-bar">
+                <span class="small-caps" style="opacity: 0.3;">Connected to the ether</span>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { GoogleGenAI } from "https://esm.sh/@google/genai";
+
+        const moodButtons = document.querySelectorAll('.mood-btn');
+        const mbtiButtons = document.querySelectorAll('.mbti-pill');
+        const artworkText = document.getElementById('artwork-text');
+        const loader = document.getElementById('loader');
+        const result = document.getElementById('result');
+        const body = document.body;
+
+        let selectedMbti = "INFP";
+
+        const copyBtn = document.getElementById('copy-btn');
+
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(artworkText.innerText);
+            copyBtn.innerText = "Copied";
+            setTimeout(() => {
+                copyBtn.innerText = "Copy to Clipboard";
+            }, 2000);
+        };
+
+        mbtiButtons.forEach(btn => {
+            btn.onclick = () => {
+                mbtiButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedMbti = btn.getAttribute('data-mbti');
+            };
+        });
+
+        const atmosphere = document.querySelector('.atmosphere');
+
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            atmosphere.style.transform = `translate(${x}px, ${y}px)`;
+        });
+
+        const introText = document.getElementById('intro-text');
+
+        moodButtons.forEach(btn => {
+            btn.onclick = async () => {
+                const mood = btn.getAttribute('data-mood');
+                const theme = btn.getAttribute('data-theme');
+
+                // Update UI
+                if (introText) introText.classList.add('hidden');
+                body.className = theme;
+                loader.classList.remove('hidden');
+                result.classList.add('hidden');
+                artworkText.innerText = '';
+
+                try {
+                    const ai = new GoogleGenAI({ apiKey: window.ENV.GEMINI_API_KEY });
+                    const response = await ai.models.generateContent({
+                        model: "gemini-2.5-flash",
+                        contents: `Write a short, highly artistic and poetic piece (lyrics or a story snippet) that perfectly captures the feeling of ${mood}, specifically through the lens of an ${selectedMbti} personality. The tone should resonate with ${selectedMbti} traits. Keep it under 60 words. No title, just the raw emotion.`,
+                    });
+
+                    artworkText.innerText = response.text;
+                    loader.classList.add('hidden');
+                    result.classList.remove('hidden');
+                } catch (error) {
+                    console.error(error);
+                    artworkText.innerText = "The ether is silent. Please try again.";
+                    loader.classList.add('hidden');
+                    result.classList.remove('hidden');
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>
