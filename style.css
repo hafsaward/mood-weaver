@@ -17,11 +17,13 @@ body {
     background-color: var(--color-bg);
     color: #fff;
     font-family: var(--font-sans);
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding: 4vh 0;
     transition: background-color 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -131,10 +133,11 @@ body.mood-zen {
     background: rgba(255, 255, 255, 0.02);
     backdrop-filter: blur(40px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 50px;
+    border-radius: 30px;
     display: flex;
     flex-direction: column;
-    padding: 4rem;
+    padding: 2.5rem 1.5rem;
+    margin: auto;
     position: relative;
     box-shadow:
         0 30px 60px rgba(0, 0, 0, 0.4),
